@@ -20,6 +20,12 @@ class ExecutableTest < Minitest::Test
     assert_includes run_with_stand_in_overmind, RQRCode::QRCode.new(ADDRESS).as_ansi
   end
 
+  def test_runs_the_app_and_the_tunnel_from_the_app_folder_with_one_port_for_both
+    procfile = File.expand_path("../lib/phone_preview/Procfile", __dir__)
+
+    assert_includes run_with_stand_in_overmind, "overmind start -T --no-port -f #{procfile} -d #{Dir.pwd}"
+  end
+
   def test_prints_the_public_address_to_open_on_the_phone
     assert_includes run_with_stand_in_overmind, "Open #{ADDRESS} on your phone"
   end

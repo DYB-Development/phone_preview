@@ -5,3 +5,7 @@ address = ENV.fetch("PUBLIC_BASE_URL")
 
 puts RQRCode::QRCode.new(address).as_ansi
 puts "Open #{address} on your phone"
+
+procfile = File.expand_path("../lib/phone_preview/Procfile", __dir__)
+$stdout.flush
+exec "overmind", "start", "-T", "--no-port", "-f", procfile, "-d", Dir.pwd
