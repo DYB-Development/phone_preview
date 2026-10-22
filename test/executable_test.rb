@@ -61,8 +61,28 @@ class ExecutableTest < Minitest::Test
     assert_includes run_with_stand_ins, "overmind start -T --no-port -f #{procfile} -d #{Dir.pwd} PORT="
   end
 
+  def holding_port(port)
+    server = begin
+      TCPServer.new("127.0.0.1", port.to_i)
+    rescue Errno::EADDRINUSE
+      nil
+    end
+    yield
+  ensure
+    server&.close
+  end
+
   def test_starts_on_port_3000_when_no_port_is_given
-    assert_match(/^overmind .* PORT=3000$/, run_with_stand_ins("PORT" => nil))
+    output = holding_port(3000) { run_with_stand_ins("PORT" => nil) }
+
+    assert_equal "phone_preview: port 3000 is already in use. Stop what is using it, or start with another PORT.\n", output
+  end
+
+  def test_names_the_port_already_in_use_and_starts_nothing
+    port = free_port
+    output = holding_port(port) { run_with_stand_ins("PORT" => port) }
+
+    assert_equal "phone_preview: port #{port} is already in use. Stop what is using it, or start with another PORT.\n", output
   end
 
   def test_says_ngrok_is_not_installed_and_how_to_install_it_and_starts_nothing

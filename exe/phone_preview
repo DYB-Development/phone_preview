@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 require "rqrcode"
 require "yaml"
+require "socket"
 
 def stop(message)
   warn "phone_preview: #{message}"
@@ -24,6 +25,19 @@ stop "ngrok is not signed in to an account. Sign in with `ngrok config add-autht
 
 address = ENV.fetch("PUBLIC_BASE_URL")
 ENV["PORT"] ||= "3000"
+
+def port_in_use?(port)
+  %w[127.0.0.1 ::1].any? do |host|
+    TCPServer.new(host, port.to_i).close
+    false
+  rescue Errno::EADDRINUSE
+    true
+  rescue SystemCallError, SocketError
+    false
+  end
+end
+
+stop "port #{ENV["PORT"]} is already in use. Stop what is using it, or start with another PORT." if port_in_use?(ENV["PORT"])
 
 puts RQRCode::QRCode.new(address).as_ansi
 puts "Open #{address} on your phone"
