@@ -1,8 +1,53 @@
 #!/usr/bin/env ruby
 require "rqrcode"
+require "yaml"
+require "socket"
+require "net/http"
+
+def stop(message)
+  warn "phone_preview: #{message}"
+  exit 1
+end
+
+def installed?(command)
+  ENV.fetch("PATH", "").split(File::PATH_SEPARATOR).any? { |dir| File.executable?(File.join(dir, command)) }
+end
+
+stop "ngrok is not installed. Install it with `brew install ngrok`." unless installed?("ngrok")
+
+def signed_in?
+  return true if ENV["NGROK_AUTHTOKEN"].to_s != ""
+
+  config = IO.popen(%w[ngrok config check], err: File::NULL, &:read)[/Valid configuration file at (.+)$/, 1]
+  config && File.exist?(config) && YAML.safe_load_file(config).to_h.then { |settings| settings.dig("agent", "authtoken") || settings["authtoken"] }.to_s != ""
+end
+
+stop "ngrok is not signed in to an account. Sign in with `ngrok config add-authtoken <token>`." unless signed_in?
 
 address = ENV.fetch("PUBLIC_BASE_URL")
 ENV["PORT"] ||= "3000"
+
+def port_in_use?(port)
+  %w[127.0.0.1 ::1].any? do |host|
+    TCPServer.new(host, port.to_i).close
+    false
+  rescue Errno::EADDRINUSE
+    true
+  rescue SystemCallError, SocketError
+    false
+  end
+end
+
+stop "port #{ENV["PORT"]} is already in use. Stop what is using it, or start with another PORT." if port_in_use?(ENV["PORT"])
+
+def held_by_another_tunnel?(address)
+  response = Net::HTTP.get_response(URI(address))
+  !response.body.to_s.include?("ERR_NGROK_3200")
+rescue SystemCallError, SocketError, IOError, Timeout::Error
+  false
+end
+
+stop "#{address} is already held by another running tunnel. Stop that tunnel first." if held_by_another_tunnel?(address)
 
 puts RQRCode::QRCode.new(address).as_ansi
 puts "Open #{address} on your phone"

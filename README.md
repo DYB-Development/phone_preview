@@ -41,6 +41,12 @@ Open the printed address on the phone, or scan the QR code.
 
 With no `PORT` set, the server starts on port 3000.
 
+Before starting anything, `phone_preview` stops with a message when ngrok is not
+installed, when ngrok is not signed in to an account, when the port is already
+in use, or when another running tunnel already holds the public address. If the
+tunnel stops while the app runs, the terminal says the phone can no longer
+reach the app.
+
 When `PUBLIC_BASE_URL` is set in development, emailed links use it over https
 with no port. With it unset, or outside development, emailed links keep the
 app's own `action_mailer.default_url_options`.

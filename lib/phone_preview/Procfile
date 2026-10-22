@@ -1,2 +1,2 @@
 web: bin/rails server -p $PORT
-tunnel: ngrok http --url=$PUBLIC_BASE_URL $PORT --log=stdout
+tunnel: ngrok http --url=$PUBLIC_BASE_URL $PORT --log=stdout; echo "The tunnel stopped, so the phone can no longer reach the app."
