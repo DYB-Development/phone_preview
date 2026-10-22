@@ -1,3 +1,7 @@
 #!/usr/bin/env ruby
+require "rqrcode"
 
-puts "Open #{ENV.fetch("PUBLIC_BASE_URL")} on your phone"
+address = ENV.fetch("PUBLIC_BASE_URL")
+
+puts RQRCode::QRCode.new(address).as_ansi
+puts "Open #{address} on your phone"
