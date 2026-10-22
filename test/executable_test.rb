@@ -71,6 +71,12 @@ class ExecutableTest < Minitest::Test
     assert_equal "phone_preview: ngrok is not installed. Install it with `brew install ngrok`.\n", output
   end
 
+  def test_says_ngrok_is_not_signed_in_and_starts_nothing
+    output = run_with_stand_ins { |bin| File.write(File.join(bin, "ngrok.yml"), "version: \"3\"\n") }
+
+    assert_equal "phone_preview: ngrok is not signed in to an account. Sign in with `ngrok config add-authtoken <token>`.\n", output
+  end
+
   def test_prints_the_public_address_to_open_on_the_phone
     assert_includes run_with_stand_ins, "Open #{@address} on your phone"
   end

@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 require "rqrcode"
+require "yaml"
 
 def stop(message)
   warn "phone_preview: #{message}"
@@ -11,6 +12,15 @@ def installed?(command)
 end
 
 stop "ngrok is not installed. Install it with `brew install ngrok`." unless installed?("ngrok")
+
+def signed_in?
+  return true if ENV["NGROK_AUTHTOKEN"].to_s != ""
+
+  config = IO.popen(%w[ngrok config check], err: File::NULL, &:read)[/Valid configuration file at (.+)$/, 1]
+  config && File.exist?(config) && YAML.safe_load_file(config).to_h.then { |settings| settings.dig("agent", "authtoken") || settings["authtoken"] }.to_s != ""
+end
+
+stop "ngrok is not signed in to an account. Sign in with `ngrok config add-authtoken <token>`." unless signed_in?
 
 address = ENV.fetch("PUBLIC_BASE_URL")
 ENV["PORT"] ||= "3000"
