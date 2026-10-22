@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    phone_preview (0.1.0)
+    phone_preview (0.2.0)
       railties (>= 7.1)
       rqrcode (~> 3.0)
 
