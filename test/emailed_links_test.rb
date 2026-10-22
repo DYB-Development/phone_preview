@@ -27,4 +27,8 @@ class EmailedLinksTest < Minitest::Test
   def test_emailed_links_use_the_public_address_over_https_with_no_port_when_it_is_set
     assert_equal({ host: "app-dev.ngrok.app", protocol: "https" }.to_s, link_options("PUBLIC_BASE_URL" => "https://app-dev.ngrok.app"))
   end
+
+  def test_emailed_links_keep_the_app_s_own_host_and_port_when_no_public_address_is_set
+    assert_equal({ host: "lvh.me", port: 3000 }.to_s, link_options("PUBLIC_BASE_URL" => nil))
+  end
 end
