@@ -31,4 +31,8 @@ class EmailedLinksTest < Minitest::Test
   def test_emailed_links_keep_the_app_s_own_host_and_port_when_no_public_address_is_set
     assert_equal({ host: "lvh.me", port: 3000 }.to_s, link_options("PUBLIC_BASE_URL" => nil))
   end
+
+  def test_emailed_links_keep_the_app_s_own_host_and_port_outside_development
+    assert_equal({ host: "lvh.me", port: 3000 }.to_s, link_options("PUBLIC_BASE_URL" => "https://app-dev.ngrok.app", "RAILS_ENV" => "production"))
+  end
 end
