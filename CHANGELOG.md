@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-22
+
 ### Added
 
 - `phone_preview` says ngrok is not installed, or not signed in to an account, and starts nothing.
