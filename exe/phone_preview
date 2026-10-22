@@ -1,6 +1,17 @@
 #!/usr/bin/env ruby
 require "rqrcode"
 
+def stop(message)
+  warn "phone_preview: #{message}"
+  exit 1
+end
+
+def installed?(command)
+  ENV.fetch("PATH", "").split(File::PATH_SEPARATOR).any? { |dir| File.executable?(File.join(dir, command)) }
+end
+
+stop "ngrok is not installed. Install it with `brew install ngrok`." unless installed?("ngrok")
+
 address = ENV.fetch("PUBLIC_BASE_URL")
 ENV["PORT"] ||= "3000"
 

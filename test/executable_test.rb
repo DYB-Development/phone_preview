@@ -65,6 +65,12 @@ class ExecutableTest < Minitest::Test
     assert_match(/^overmind .* PORT=3000$/, run_with_stand_ins("PORT" => nil))
   end
 
+  def test_says_ngrok_is_not_installed_and_how_to_install_it_and_starts_nothing
+    output = run_with_stand_ins { |bin| File.delete(File.join(bin, "ngrok")) }
+
+    assert_equal "phone_preview: ngrok is not installed. Install it with `brew install ngrok`.\n", output
+  end
+
   def test_prints_the_public_address_to_open_on_the_phone
     assert_includes run_with_stand_ins, "Open #{@address} on your phone"
   end
