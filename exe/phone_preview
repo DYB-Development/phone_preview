@@ -2,6 +2,7 @@
 require "rqrcode"
 require "yaml"
 require "socket"
+require "net/http"
 
 def stop(message)
   warn "phone_preview: #{message}"
@@ -38,6 +39,15 @@ def port_in_use?(port)
 end
 
 stop "port #{ENV["PORT"]} is already in use. Stop what is using it, or start with another PORT." if port_in_use?(ENV["PORT"])
+
+def held_by_another_tunnel?(address)
+  response = Net::HTTP.get_response(URI(address))
+  !response.body.to_s.include?("ERR_NGROK_3200")
+rescue SystemCallError, SocketError, IOError, Timeout::Error
+  false
+end
+
+stop "#{address} is already held by another running tunnel. Stop that tunnel first." if held_by_another_tunnel?(address)
 
 puts RQRCode::QRCode.new(address).as_ansi
 puts "Open #{address} on your phone"

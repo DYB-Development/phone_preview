@@ -97,6 +97,12 @@ class ExecutableTest < Minitest::Test
     assert_equal "phone_preview: ngrok is not signed in to an account. Sign in with `ngrok config add-authtoken <token>`.\n", output
   end
 
+  def test_names_the_address_already_held_by_another_running_tunnel_and_starts_nothing
+    @address_answer = "HTTP/1.1 200 OK\r\nContent-Length: 2\r\nConnection: close\r\n\r\nok"
+
+    assert_equal "phone_preview: #{@address} is already held by another running tunnel. Stop that tunnel first.\n", run_with_stand_ins
+  end
+
   def test_prints_the_public_address_to_open_on_the_phone
     assert_includes run_with_stand_ins, "Open #{@address} on your phone"
   end
